@@ -1,0 +1,20 @@
+/* // google font */
+@import url('https://fonts.googleapis.com/css2?family=Anek+Gujarati:wght@100..800&family=Outfit:wght@100..900&display=swap');
+@import "tailwindcss";
+
+*{
+  font-family: "Outfit", sans-serif;
+
+}
+
+/* This adds a global style for all buttons.
+   global chages it effect in whole project
+   @layer base = apply default styles across the whole project.
+   @apply cursor-pointer = makes every button show a hand cursor on hover,
+   so we don’t need to add cursor-pointer class to each button manually. */
+
+@layer base{
+  button{
+    @apply cursor-pointer;
+  }
+}
