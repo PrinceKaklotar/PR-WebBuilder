@@ -27,7 +27,7 @@ const Home = () => {
     <section className="flex flex-col items-center text-white text-sm pb-20 px-4 font-poppins">
       <img
         src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/refs/heads/main/assets/hero/bg-gradient-2.png"
-        className="absolute inset-0 -z-10 size-full opacity-50"
+        className="absolute inset-0 -z-10 size-full opacity-60"
         alt=""
       />
 
@@ -75,7 +75,7 @@ const Home = () => {
           placeholder="Describe your presentation in details"
           required
         />
-        <button className="ml-auto flex items-center gap-2 bg-gradient-to-r from-[#CB52D4] to-indigo-600 rounded-md px-4 py-2">
+        <button className="ml-auto flex items-center gap-2 bg-gradient-to-r from-[#e305c2] to-indigo-600 rounded-md px-4 py-2">
           {!loading ? (
             "Create with AI"
           ) : (
