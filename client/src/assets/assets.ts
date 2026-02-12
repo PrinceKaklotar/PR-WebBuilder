@@ -18,7 +18,7 @@ export const appPlans = [
         {
             id: 'pro',
             name: 'Pro',
-            price: '₹1499',
+            price: '₹1299',
             credits: 400,
             description: 'Add credits to create more projects',
             features: ['Upto 80 Creations', 'Extended Revisions', 'Advanced AI Models', 'priority email support', 'Advanced analytics',],
@@ -26,7 +26,7 @@ export const appPlans = [
         {
             id: 'enterprise',
             name: 'Enterprise',
-            price: '₹4499',
+            price: '₹2499',
             credits: 1000,
             description: 'Add credits to create more projects',
             features: ['Upto 200 Creations', 'Increased Revisions', 'Advanced AI Models', 'email + chat support', 'Advanced analytics',],
