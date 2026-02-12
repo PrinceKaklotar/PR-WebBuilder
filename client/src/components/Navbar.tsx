@@ -1,6 +1,6 @@
 import React from 'react'
 import { assets } from '../assets/assets'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate ,NavLink} from 'react-router-dom';
 
 const Navbar = () => {
 
@@ -19,12 +19,30 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8 transition duration-500 text-2xl">
-          <Link to="/"> Home </Link>
-          <Link to="/projects"> My Project </Link>
-          <Link to="/community"> Community </Link>
-          <Link to="/pricing"> Pricing </Link>
-        </div>
+<div className="hidden md:flex items-center gap-8 text-2xl">
+
+  <NavLink to="/" className="relative group">
+    Home
+    <span className="absolute left-0 -bottom-1 h-[2px] bg-white transition-all duration-300 w-0 group-hover:w-full group-[.active]:w-full"></span>
+  </NavLink>
+
+  <NavLink to="/projects" className="relative group">
+    My Project
+    <span className="absolute left-0 -bottom-1 h-[2px]  bg-white transition-all duration-300 w-0 group-hover:w-full group-[.active]:w-full"></span>
+  </NavLink>
+
+  <NavLink to="/community" className="relative group">
+    Community
+    <span className="absolute left-0 -bottom-1 h-[2px]  bg-white transition-all duration-300 w-0 group-hover:w-full group-[.active]:w-full"></span>
+  </NavLink>
+
+  <NavLink to="/pricing" className="relative group">
+    Pricing
+    <span className="absolute left-0 -bottom-1 h-[2px]  bg-white transition-all duration-300 w-0 group-hover:w-full group-[.active]:w-full"></span>
+  </NavLink>
+
+</div>
+
 
         <div className="flex items-center gap-3">
           <button

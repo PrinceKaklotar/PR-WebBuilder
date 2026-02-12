@@ -27,7 +27,7 @@ const Home = () => {
     <section className="flex flex-col items-center text-white text-sm pb-20 px-4 font-poppins">
       <img
         src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/refs/heads/main/assets/hero/bg-gradient-2.png"
-        className="absolute inset-0 -z-10 size-full opacity-60"
+        className="absolute inset-0 -z-10 size-full opacity-50"
         alt=""
       />
 
