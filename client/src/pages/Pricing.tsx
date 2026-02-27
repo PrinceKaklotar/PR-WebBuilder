@@ -65,7 +65,7 @@ const Pricing = () => {
                     </div>
                 </div>
                 <p className="text-gray-500 max-w-xl mx-auto text-center space-y-2 mt-5">
-                   Project Creaion take 5 credits. If you want to create more project then buy plan accordingly.
+                   Project Creation take 5 credits. If you want to create more project then buy plan accordingly.
                 </p>
        </div>
        <Footer/>

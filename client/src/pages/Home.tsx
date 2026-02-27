@@ -72,7 +72,7 @@ const Home = () => {
           onChange={(e) => setInput(e.target.value)}
           className="bg-transparent outline-none text-gray-300 resize-none w-full text-xl"
           rows={4}
-          placeholder="Describe your presentation in details"
+          placeholder="Describe your website idea"
           required
         />
         <button className="ml-auto flex items-center gap-2 bg-gradient-to-r from-[#e305c2] to-indigo-600 rounded-md px-4 py-2">
