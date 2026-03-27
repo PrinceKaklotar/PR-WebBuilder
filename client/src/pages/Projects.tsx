@@ -167,7 +167,7 @@ const resize = (e: MouseEvent) => {
 
     {/* navbar finish */}
          
-    <div className="flex-1 flex pt-2">
+    <div className="flex-1 flex pt-2 overflow-hidden">
 
   {/* Sidebar */}
   <div style={{ width: sidebarWidth }} className="h-full">
@@ -187,7 +187,7 @@ const resize = (e: MouseEvent) => {
   />
 
   {/* Project Preview */}
-  <div className="flex-1 pl-4 h-full">
+  <div className="flex-1 pl-4 h-full overflow-hidden">
   <div className="w-full h-full bg-white text-black font-bold rounded-2xl overflow-hidden">
         <ProjectPreview 
         ref={previewRef}
