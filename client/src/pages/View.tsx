@@ -1,9 +1,40 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { dummyProjects } from '../assets/assets';
+import { Loader2Icon } from 'lucide-react';
+import ProjectPreview from '../components/ProjectPreview';
+import type { Project } from '../types';
 
 const View = () => {
+  const {projectId} = useParams();
+  const [code,setCode]=  useState('');
+  const [loading,setLoading] = useState(true);
+
+  const fetchCode = async () => {
+    const code = dummyProjects.find(project => project.id === projectId)?.current_code;
+    setTimeout(()=>{
+       setTimeout(()=>{
+         if(code){
+          setCode(code);
+          setLoading(false);
+         }
+       })
+    },2000)
+  }
+  useEffect(()=>{
+     fetchCode()
+  },[])
+
+  if(loading){
+    return (
+        <div>
+           <Loader2Icon />
+        </div>
+    )
+  }
   return (
-    <div>
-       <h1>view</h1>
+    <div className='h-screen'>
+        {code && <ProjectPreview project = {{current_code : code} as Project} ChatButton={false} showEditorPanel={false}/>}
     </div>
   )
 }

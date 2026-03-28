@@ -39,8 +39,24 @@ const Projects = () => {
   }
 
   const DownloadCode = () => {
+         
+    const code = previewRef.current?.getCode() || project?.current_code;
+    if(!code) {
+       if(chatButton) {
+        return
+       }
 
+       return
+    }
+    const element = document.createElement('a');
+    const file = new Blob([code],{type: "text/html"});
+    element.href = URL.createObjectURL(file)
+    element.download = "index.html"
+    document.body.appendChild(element);
+    element.click();
+    
   }
+  
 
   const TogglePublish = async () => {
     
@@ -170,7 +186,7 @@ const resize = (e: MouseEvent) => {
     <div className="flex-1 flex pt-2 overflow-hidden">
 
   {/* Sidebar */}
-  <div style={{ width: sidebarWidth }} className="h-full">
+  <div style={{ width: sidebarWidth }} className="h-full ">
     <Sidebar
       isMenuOpen={isMenuOpen}
       project={project}
@@ -188,7 +204,7 @@ const resize = (e: MouseEvent) => {
 
   {/* Project Preview */}
   <div className="flex-1 pl-4 h-full overflow-hidden">
-  <div className="w-full h-full bg-white text-black font-bold rounded-2xl overflow-hidden">
+  <div className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-700 to-gray-300 text-black font-bold rounded-2xl overflow-hidden">
         <ProjectPreview 
         ref={previewRef}
         project={project}
