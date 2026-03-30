@@ -11,7 +11,7 @@ import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import { Toaster } from 'sonner'
 import AuthPage from './pages/auth/AuthPage'
-import Settings from './pages/settings'
+import Settings from './pages/Settings'
 
 
 
@@ -34,9 +34,10 @@ const App = () => {
           <Route path='/preview/:projectId/:versionId' element={<Preview/>} />
           <Route path='/community' element={<Community/>} />
           <Route path='/view/:projectId' element={<View/>} />
-          <Route path="/auth/:pathname" element={<AuthPage />} />
+         <Route path="/auth/*" element={<AuthPage />} />
           <Route path="/account/settings" element={<Settings/>} />
-
+          <Route path="/auth/reset-password" element={<AuthPage />} />
+    
       </Routes>
     </div>
   )

@@ -1,9 +1,10 @@
-import { useParams } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 import { AuthView } from "@daveyplate/better-auth-ui"
 import { useEffect, useState } from "react"
 
 export default function AuthPage() {
-  const { pathname } = useParams()
+  const { pathname } = useLocation()
+  
 
   const [position, setPosition] = useState({ x: 0, y: 0 })
 
