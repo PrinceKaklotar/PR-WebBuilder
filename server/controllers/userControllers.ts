@@ -33,6 +33,14 @@ export const createUserProject = async (req: Request, res: Response) => {
          
 
         const { initial_prompt } = req.body  // ✅ correct spelling
+        
+
+        // 🛡️ safety check
+        if (!initial_prompt || initial_prompt.trim().length === 0) {
+        return res.status(400).json({
+            message: "Prompt is required"
+        });
+        }
 
         if (!userId) {
             return res.status(401).json({ message: 'Unauthorized' })
@@ -76,7 +84,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
         // enhance user promt
         const promtEnhanceResponce = await openai.chat.completions.create({
-            model: 'z-ai/glm-4.5-air:free',
+            model: 'arcee-ai/trinity-large-preview:free',
             messages : [
                 {
                      role: 'system',
@@ -122,7 +130,7 @@ export const createUserProject = async (req: Request, res: Response) => {
         })
 
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'z-ai/glm-4.5-air:free',
+            model: 'arcee-ai/trinity-large-preview:free',
             messages: [
                  {
                      role: 'system',
@@ -165,6 +173,22 @@ export const createUserProject = async (req: Request, res: Response) => {
 
         const code = codeGenerationResponse.choices[0].message.content || '';
 
+            if(!code) {
+        await prisma.conversation.create({
+        data : {
+            role: 'assistant',
+            content: " Unable to genrate code , so please ty again",
+            projectId : project.id
+        }
+        })
+
+        await prisma.user.update({
+            where: {id : userId},
+            data : {credits: {increment: 5}}
+        })
+        return;
+    }
+
         const version = await prisma.version.create({
         data: {
              code: code.replace(/```[a-z]*\n?/gi, '')
@@ -194,15 +218,16 @@ export const createUserProject = async (req: Request, res: Response) => {
             }
         })
 
-    } catch (error: any) {
-
+   } catch (error: any) {
+    console.log(error)
+    if (!res.headersSent) {
         await prisma.user.update({
-            where: {id: userId},
-            data: {credits :{increment:5}}
+            where: { id: userId },
+            data: { credits: { increment: 5 } }
         })
-        console.log(error)
         res.status(500).json({ message: error.message })
     }
+}
 }
 
 
@@ -217,17 +242,33 @@ export const getUserProject = async (req: Request, res:Response) => {
 
       const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
      
-      const project = await prisma.websiteProject.findUnique({
-         where  : {id: projectId,userId},
-         include: {
-            conversation : {
-                orderBy : {
+    //   const project = await prisma.websiteProject.findUnique({
+    //      where  : {id: projectId,userId},
+    //      include: {
+    //         conversation : {
+    //             orderBy : {
+    //                 timestamp: 'asc'
+    //             }
+    //         },
+    //         versions : {orderBy : {timestamp:'asc'}}
+    //      }
+    //   })
+        const project = await prisma.websiteProject.findFirst({
+            where: {
+                id: projectId,
+                userId
+            },
+            include: {
+                conversation: {
+                orderBy: {
                     timestamp: 'asc'
                 }
-            },
-            versions : {orderBy : {timestamp:'asc'}}
-         }
-      })
+                },
+                versions: {
+                orderBy: { timestamp: 'asc' }
+                }
+            }
+            })
 
       res.json({project})
     }
@@ -271,9 +312,15 @@ export const togglePublish = async (req: Request, res:Response) => {
 
       const projectId = Array.isArray(req.params.projectId) ? req.params.projectId[0] : req.params.projectId;
 
-      const project = await prisma.websiteProject.findUnique({
-        where : {id: projectId,userId}
-      })
+    //   const project = await prisma.websiteProject.findUnique({
+    //     where : {id: projectId,userId}
+    //   })
+            const project = await prisma.websiteProject.findFirst({
+        where: {
+            id: projectId,
+            userId
+        }
+        })
 
       if(!project) {
          return res.status(404).json({message: 'project not found'});

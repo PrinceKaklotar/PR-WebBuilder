@@ -2,14 +2,18 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams , Link} from 'react-router-dom'
 import type { Project } from '../types';
 import { DownloadIcon, EyeIcon, EyeOffIcon, FullscreenIcon, LaptopIcon, Loader2Icon, MessageSquareIcon, PhoneIcon, SaveIcon, SmartphoneIcon, TabletIcon, UploadIcon, XIcon } from 'lucide-react';
-import { dummyConversations, dummyProjects , assets, dummyVersion} from '../assets/assets';
+ import { dummyConversations, dummyProjects , assets, dummyVersion} from '../assets/assets';
 import Sidebar from '../components/Sidebar';
 import ProjectPreview, { type ProjectPreviewRef } from '../components/ProjectPreview';
+import api from '@/configs/axios';
+import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
 
 
 const Projects = () => {
   const {projectId} = useParams();
   const navigate = useNavigate();
+  const {data: session, isPending} = authClient.useSession()
   const [sidebarWidth, setSidebarWidth] = useState(350);
    const isResizing = useRef(false);
   const [project,setProject] = useState<Project | null>(null);
@@ -23,14 +27,16 @@ const Projects = () => {
   const previewRef = useRef<ProjectPreviewRef>(null);
 
   const fetchProject = async () => {
-    const project = dummyProjects.find(project => project.id == projectId)
-    setTimeout(()=>{
-      if(project) {
-        setProject({...project,conversation:dummyConversations , versions:dummyVersion}),
-        setLoading(false);
-        setChatButton(project.current_code ? false:true)
+      try {
+         const { data } = await api.get(`/api/user/project/${projectId}`)
+         setProject(data.project)
+         setChatButton(data.project.current_code ? false : true)
+         setLoading(false);
+
+      } catch (error : any) {
+           toast.error(error?.response?.data?.message || error.message);
+           console.log(error);
       }
-    },2000)
 
   }
 
@@ -76,11 +82,31 @@ const resize = (e: MouseEvent) => {
   }
 };
 
+// Fetch when projectId changes
+useEffect(() => {
+    if (session?.user) {
+        fetchProject();
+    } else if (!isPending && !session?.user) {
+        navigate("/")
+        toast("Please login to view your projects")
+    }
+}, [session?.user, projectId])
 
-    useEffect(() => {
-    fetchProject();
-  },[])
+// ✅ Poll every 5 seconds until code is ready
+useEffect(() => {
+    if (!project || project.current_code) return; // stop if code exists
 
+    const intervalId = setInterval(async () => {
+        const { data } = await api.get(`/api/user/project/${projectId}`)
+        setProject(data.project)
+        setChatButton(data.project.current_code ? false : true)
+        if (data.project.current_code) {
+            clearInterval(intervalId) // ✅ stop polling once code arrives
+        }
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+}, [project?.current_code])
   useEffect(() => {
   window.addEventListener("mousemove", resize);
   window.addEventListener("mouseup", stopResize);

@@ -2,6 +2,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } f
 import type { Project } from '../types';
 import { iframeScript } from '../assets/assets';
 import EditorPannel from './EditorPannel';
+import LoaderSteps from './LoaderSteps';
 
 interface ProjectPreviewProps {
   project: Project;
@@ -113,7 +114,9 @@ useEffect(() => {
             )}
           </>
         ) : (
-          ChatButton && <div>Loading..</div>
+          ChatButton && (
+            <LoaderSteps/>
+          )
         )}
       </div>
     );

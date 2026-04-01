@@ -11,5 +11,6 @@ projectRouter.delete('/:projectId',protect,deleteProject)
 projectRouter.get('/preview/:projectId', protect, getProjectPreview)
 projectRouter.get('/published',getPublishedProject)
 projectRouter.get('/published/:projectId', getProjectById)
+projectRouter.post('/api/project/revision/:projectId', makeRevision);
 
 export default projectRouter

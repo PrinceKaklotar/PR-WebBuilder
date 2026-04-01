@@ -28,10 +28,15 @@ export const makeRevision = async (req: Request, res:Response) => {
           return res.status(400).json({message: 'please enter a valid promt'})
       }
 
-      const currentProject = await prisma.websiteProject.findUnique({
-         where: {id : projectId,userId},
-         include: {versions : true}
-      })
+        const currentProject = await prisma.websiteProject.findFirst({
+        where: {
+            id: projectId,
+            userId
+        },
+        include: {
+            versions: true
+        }
+        })
 
       if(!currentProject) {
           return res.status(404).json({message: 'project not found !'})
@@ -53,11 +58,12 @@ export const makeRevision = async (req: Request, res:Response) => {
       // enhanec user responce
 
       const promtEnhanceResponse =  await openai.chat.completions.create({
-         model: 'z-ai/glm-4.5-air:free',
+         model: 'arcee-ai/trinity-large-preview:free',
          messages : [
             {
                 role: 'system',
                 content :  `
+
                 content:
                 You are a prompt enhancement specialist. The user wants to make changes to their website. Enhance their request to be more specific and actionable for a web developer.
 
@@ -95,7 +101,7 @@ export const makeRevision = async (req: Request, res:Response) => {
 
       // genrate website code
       const codeGenrationResponse = await openai.chat.completions.create({
-          model: 'z-ai/glm-4.5-air:free',
+          model: 'arcee-ai/trinity-large-preview:free',
           messages: [
               {   
                 role: 'system',
@@ -121,6 +127,22 @@ export const makeRevision = async (req: Request, res:Response) => {
       })
 
     const code = codeGenrationResponse.choices[0].message.content || '';
+     
+    if(!code) {
+        await prisma.conversation.create({
+        data : {
+            role: 'assistant',
+            content: " Unable to genrate code , so please ty again",
+            projectId
+        }
+        })
+
+        await prisma.user.update({
+            where: {id : userId},
+            data : {credits: {increment: 5}}
+        })
+        return;
+    }
 
     const versions = await prisma.version.create({
         data: {
@@ -150,7 +172,18 @@ export const makeRevision = async (req: Request, res:Response) => {
         }
     })
 
-      res.json({message: 'Change made Successfully'})
+      const updatedProject = await prisma.websiteProject.findFirst({
+  where: {
+    id: projectId,
+    userId
+  },
+  include: {
+    conversation: { orderBy: { timestamp: 'asc' } },
+    versions: { orderBy: { timestamp: 'asc' } }
+  }
+});
+
+res.json({ project: updatedProject });
     }
     catch (error: any){
         await prisma.user.update({

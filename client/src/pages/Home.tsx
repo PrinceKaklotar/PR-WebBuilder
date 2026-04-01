@@ -1,9 +1,18 @@
+import api from "@/configs/axios";
+import { authClient } from "@/lib/auth-client";
 import { Loader2Icon } from "lucide-react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Home = () => {
+
+  const {data : session} = authClient.useSession()
+  const navigate = useNavigate()
   // for text area where user insert promt
   const [input, setInput] = useState("");
+
+  
 
   // loading
   const [loading, setLoading] = useState(false);
@@ -11,14 +20,28 @@ const Home = () => {
   const onSubmitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // when someone press on submit or crare button
-    setLoading(true);
-
-    // api simulate for genrating web
-
-    setTimeout(() => {
+    try {
+      if(!session?.user){
+        return toast.error('Please sign in to create project')
+      }
+      else if(!input.trim()) {
+        return toast.error('Please enter promt message')
+      }
+      setLoading(true);
+     const { data } = await api.post('/api/user/project', {
+  initial_prompt: input
+});
       setLoading(false);
-    }, 3000);
+      navigate(`/projects/${data.projectId}`)
+
+    } catch (error : any) {
+        setLoading(false);
+        toast.error(error?.response?.data?.message || error.message);
+        console.log(error);
+    }
+
+    
+
   };
 
   // so this is i addeed line

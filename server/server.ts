@@ -6,7 +6,7 @@ import { auth } from './lib/auth';
 import { Resend } from "resend";
 import userRouter from "./Routes/userRoutes";
 import projectRouter from "./Routes/projectRoutes";
-
+import prisma from './lib/prisma';
 const app = express();
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -15,6 +15,17 @@ const corsOptions = {
     credentials: true,
 }
 
+// Add this at the bottom of server.ts
+
+
+setInterval(async () => {
+    try {
+        await prisma.$queryRaw`SELECT 1`
+        console.log('✅ DB keep-alive ping')
+    } catch (e) {
+        console.log('❌ DB ping failed:', e)
+    }
+}, 4 * 60 * 1000) // every 4 minutes
 app.use(cors(corsOptions));
 
 app.all('/api/auth/{*any}', toNodeHandler(auth));

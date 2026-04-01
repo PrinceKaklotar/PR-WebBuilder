@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import type { Project } from "../types";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Loader2Icon, PlusIcon, Trash2Icon, TrashIcon } from "lucide-react";
-import { dummyProjects } from "../assets/assets";
+// import { dummyProjects } from "../assets/assets";
 import Footer from "../components/Footer";
+
+import api from "@/configs/axios";
 
 const MyProject = () => {
   // store project data inn array -> ([]) initially empty array
@@ -15,7 +17,8 @@ const MyProject = () => {
   const fectchProjcts = async () => {
     // loading animation saw
     // we want to stop this animation after 1 sec
-    setProjects(dummyProjects);
+   const { data } = await api.get('/api/user/projects')
+setProjects(data.projects)
     setTimeout(() => {
       setLoading(false);
     }, 1000);

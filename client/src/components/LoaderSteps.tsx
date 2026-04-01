@@ -5,7 +5,7 @@ const steps = [
     {icon: ScanLineIcon,label:"Analyzing your request.."},
     {icon: SquareIcon,label: "Generating layout structure.."},
     {icon: TriangleIcon,label : "Assembling UI components.."},
-    {icon: CircleIcon,label : "Finalizing youtr website.."},
+    {icon: CircleIcon,label : "Finalizing your website.."},
 ]
 
 const STEP_DURATION = 45000
@@ -35,7 +35,7 @@ const LoaderSteps = () => {
       {/* Step label - fade using transition only (no invisible start) */}
       <p key={current} className=''>{steps[current].label}</p>
 
-      <p>This may take around 2-3 minutes.. Please wait..</p>
+      <p>This may take around 2-3 minutes.. Please wait..Dhiraj rakhjo</p>
     </div>
   )
 }

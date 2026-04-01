@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import type { Message, Project, Version } from '../types';
 import { BotIcon, EyeIcon, Loader2Icon, SendIcon, UserIcon } from 'lucide-react';
+import api from '@/configs/axios'
+import { toast } from 'sonner'
 import { Link } from 'react-router-dom';
 
 interface SidebarProps{
@@ -16,18 +18,133 @@ const Sidebar = ({isMenuOpen,project,setProject,chatButton,setChatButton} : Side
   const messageRef = useRef<HTMLDivElement>(null);
   const [input,setInput] = useState('');
 
-  const handelRollback = async (versionId:string) => {
-    
-  }
+  const handleRollback = async (versionId: string) => {
+  try {
+    const confirm = window.confirm('Are you sure you want to rollback to this version?')
+    if (!confirm) return;
 
-  const handelRevision = async (e:React.FormEvent) => {
-      e.preventDefault();
-      setChatButton(true);
-      setTimeout(()=> {
-         setChatButton(false)
-      },3000)
+    setChatButton(true);
 
+    const { data } = await api.get(`/api/project/rollback/${project.id}/${versionId}`);
+    const { data: data2 } = await api.get(`/api/user/project/${project.id}`);
+
+    toast.success(data.message);
+    setProject(data2.project);
+    setChatButton(false);
+
+  } catch (error: any) {
+    setChatButton(false);
+    toast.error(error?.response?.data?.message || error.message);
+    console.log(error);
   }
+};
+
+// const handelRevision = async (e: React.FormEvent) => {
+//   e.preventDefault();
+
+//   if (!input.trim()) return;
+
+//   try {
+//     setChatButton(true);
+
+//     // 🔥 ADD USER MESSAGE IMMEDIATELY (UI update)
+//     const newMessage = {
+//       id: Date.now().toString(),
+//       role: "user",
+//       content: input,
+//       timestamp: new Date().toISOString(),
+//     };
+
+//     setProject({
+//       ...project,
+//       conversation: [...project.conversation, newMessage],
+//     });
+
+//     // 🔥 CALL BACKEND API
+//     const res = await fetch(`http://localhost:3000/api/user/project/${project.id}`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         prompt: input,
+//       }),
+//     });
+
+//     const data = await res.json();
+
+//     // 🔥 UPDATE PROJECT WITH NEW DATA
+//     setProject(data.project);
+
+//     setInput(""); // clear input
+
+//   } catch (error) {
+//     console.log(error);
+//   } finally {
+//     setChatButton(false);
+//   }
+// };
+
+
+
+// const handelRevision = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (!input.trim()) return;
+
+//     try {
+//         setChatButton(true);
+
+//         // Add user message to UI immediately
+//         setProject({
+//             ...project,
+//             conversation: [...project.conversation, {
+//                 id: Date.now().toString(),
+//                 role: 'user',
+//                 content: input,
+//                 timestamp: new Date().toISOString(),
+//             }],
+//         });
+
+//         setInput('');
+
+//         // ✅ Call correct revision endpoint
+//         await api.post(`/api/project/revision/${project.id}`, { message: input });
+
+//         // ✅ Fetch updated project after revision
+//         const { data } = await api.get(`/api/user/project/${project.id}`);
+//         setProject(data.project);
+
+//         toast.success('Changes made successfully!');
+//     } catch (error: any) {
+//         toast.error(error?.response?.data?.message || error.message);
+//         console.log(error);
+//     } finally {
+//         setChatButton(false);
+//     }
+// };
+
+const handelRevision = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!input.trim()) return;
+
+  try {
+    setChatButton(true);
+
+    const { data } = await api.post(`/api/project/revision/${project.id}`, {
+      message: input
+    });
+
+    setProject(data.project); // 🔥 THIS IS IMPORTANT
+    setInput("");
+
+  } catch (error: any) {
+    console.log(error);
+  } finally {
+    setChatButton(false);
+  }
+};
+
   useEffect(()=>{
      if(messageRef.current) {
         messageRef.current.scrollIntoView({behavior: 'smooth'})
@@ -91,7 +208,7 @@ const Sidebar = ({isMenuOpen,project,setProject,chatButton,setChatButton} : Side
                                  {project.current_version_index === ver.id ? (
                                    <button className='text-xs bg-green-600 px-2 py-1 rounded'> Curent Version</button>
                                  ): (
-                                   <button className='text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded' onClick={()=> handelRollback(ver.id)}>Roll back to this version</button>
+                                   <button className='text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded' onClick={()=> handleRollback(ver.id)}>Roll back to this version</button>
                                  )}
                                  <Link className='p-1 hover:bg-gray-700 rounded' target='_blank' to={`/preview/${project.id}/${ver.id}`}>
                                    <EyeIcon className='size-4'/>
@@ -128,15 +245,26 @@ const Sidebar = ({isMenuOpen,project,setProject,chatButton,setChatButton} : Side
 
                   <div className='flex items-end gap-2 bg-gray-800 rounded-lg p-2'>
 
-                       <textarea
-                       onChange={(e)=> setInput(e.target.value)}
-                       rows={2}
-                       placeholder='Describe your website...'
-                       className='flex-1 bg-transparent outline-none text-sm text-gray-200 resize-none'
-                       disabled={chatButton}
-                       />
+                    <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handelRevision(e);
+                      }
+                    }}
+                    rows={2}
+                    placeholder="Describe your website..."
+                    className="flex-1 bg-transparent outline-none text-sm text-gray-200 resize-none"
+                    disabled={chatButton}
+                  />
 
-                        <button disabled={chatButton || !input.trim()} className='p-2 bg-indigo-600 hover:bg-indigo-500 rounded-md'>
+                       <button
+                        type="submit"
+                        disabled={chatButton || !input.trim()}
+                        className='p-2 bg-indigo-600 hover:bg-indigo-500 rounded-md'
+                      >
 
                            {chatButton 
                            ? <Loader2Icon className='animate-spin text-white size-4'/> 
