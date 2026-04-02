@@ -3,6 +3,7 @@
 import {Request, Response} from 'express'
 import prisma from '../lib/prisma';
 import openai from '../configs/openai';
+import Stripe from 'stripe'
 
 // get user credit
 export const getUserCredits = async (req: Request, res:Response) => {
@@ -84,7 +85,7 @@ export const createUserProject = async (req: Request, res: Response) => {
 
         // enhance user promt
         const promtEnhanceResponce = await openai.chat.completions.create({
-            model: 'arcee-ai/trinity-large-preview:free',
+            model: process.env.MODEL_NAME!,
             messages : [
                 {
                      role: 'system',
@@ -130,7 +131,7 @@ export const createUserProject = async (req: Request, res: Response) => {
         })
 
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'arcee-ai/trinity-large-preview:free',
+           model: process.env.MODEL_NAME!,
             messages: [
                  {
                      role: 'system',
@@ -152,6 +153,10 @@ export const createUserProject = async (req: Request, res: Response) => {
                     - Use placeholder images from https://placehold.co/600x400
                     - Use Tailwind gradient classes for beautiful backgrounds
                     - Make sure all buttons, cards, and components use Tailwind styling
+                    - ALL buttons must be functional using JavaScript
+                    - Add event listeners for interactions
+                    - Add real logic (not static UI)
+                    - Use localStorage for dynamic features if needed
 
                     CRITICAL HARD RULES:
                     1. You MUST put ALL output ONLY into message.content.

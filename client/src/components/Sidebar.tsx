@@ -18,27 +18,54 @@ const Sidebar = ({isMenuOpen,project,setProject,chatButton,setChatButton} : Side
   const messageRef = useRef<HTMLDivElement>(null);
   const [input,setInput] = useState('');
 
-  const handleRollback = async (versionId: string) => {
+  const fetchProject = async () => {
   try {
-    const confirm = window.confirm('Are you sure you want to rollback to this version?')
-    if (!confirm) return;
-
-    setChatButton(true);
-
-    const { data } = await api.get(`/api/project/rollback/${project.id}/${versionId}`);
-    const { data: data2 } = await api.get(`/api/user/project/${project.id}`);
-
-    toast.success(data.message);
-    setProject(data2.project);
-    setChatButton(false);
-
+    const { data } = await api.get(`/api/user/project/${project.id}`)
+    setProject(data.project)
   } catch (error: any) {
-    setChatButton(false);
     toast.error(error?.response?.data?.message || error.message);
     console.log(error);
   }
-};
+}
 
+//   const handleRollback = async (versionId: string) => {
+//   try {
+//     const confirm = window.confirm('Are you sure you want to rollback to this version?')
+//     if (!confirm) return;
+
+//     setChatButton(true);
+
+//     const { data } = await api.get(`/api/project/rollback/${project.id}/${versionId}`);
+//     const { data: data2 } = await api.get(`/api/user/project/${project.id}`);
+
+//     toast.success(data.message);
+//     setProject(data2.project);
+//     setChatButton(false);
+
+//   } catch (error: any) {
+//     setChatButton(false);
+//     toast.error(error?.response?.data?.message || error.message);
+//     console.log(error);
+//   }
+// };
+const handleRollback = async (versionId: string) => {
+  try {
+    const confirm = window.confirm('Are you sure you want to rollback to this version?')
+    if (!confirm) return;
+    setChatButton(true)
+    const { data } = await api.get(`/api/project/rollback/${project.id}/${versionId}`);
+    const { data: data2 } = await api.get(`/api/user/project/${project.id}`);
+
+    toast.success(data.message)
+    setProject(data2.project)
+    setChatButton(false)
+
+  } catch (error: any) {
+    setChatButton(false)
+    toast.error(error?.response?.data?.message || error.message);
+    console.log(error);
+  }
+}
 // const handelRevision = async (e: React.FormEvent) => {
 //   e.preventDefault();
 
@@ -123,27 +150,53 @@ const Sidebar = ({isMenuOpen,project,setProject,chatButton,setChatButton} : Side
 //     }
 // };
 
+// const handelRevision = async (e: React.FormEvent) => {
+//   e.preventDefault();
+
+//   if (!input.trim()) return;
+
+//   try {
+//     setChatButton(true);
+
+//     const { data } = await api.post(`/api/project/revision/${project.id}`, {
+//       message: input
+//     });
+
+//     setProject(data.project); // 🔥 THIS IS IMPORTANT
+//     setInput("");
+
+//   } catch (error: any) {
+//     console.log(error);
+//   } finally {
+//     setChatButton(false);
+//   }
+// };
+
 const handelRevision = async (e: React.FormEvent) => {
-  e.preventDefault();
+   e.preventDefault();
+   let interval : number | undefined;
+   try {
+  setChatButton(true);
+  interval = setInterval(() => {
+    fetchProject();
+  }, 10000)
+  const { data } = await api.post(`/api/project/revision/${project.id}`, {
+    message: input
+  })
+  fetchProject();
+  toast.success(data.message)
+  setInput('')
+  clearInterval(interval)
+  setChatButton(false);
+} catch (error: any) {
+  setChatButton(false);
+  toast.error(error?.response?.data?.message || error.message);
+  console.log(error);
+}
+}
 
-  if (!input.trim()) return;
 
-  try {
-    setChatButton(true);
 
-    const { data } = await api.post(`/api/project/revision/${project.id}`, {
-      message: input
-    });
-
-    setProject(data.project); // 🔥 THIS IS IMPORTANT
-    setInput("");
-
-  } catch (error: any) {
-    console.log(error);
-  } finally {
-    setChatButton(false);
-  }
-};
 
   useEffect(()=>{
      if(messageRef.current) {

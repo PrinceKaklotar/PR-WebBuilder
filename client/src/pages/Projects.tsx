@@ -41,8 +41,23 @@ const Projects = () => {
   }
 
   const SaveProject = async () => {
-    
-  }
+      if(!previewRef.current) return;
+      const code = previewRef.current.getCode();
+      if(!code) return;
+      setIsSeving(true);
+
+      try{
+          const {data} = await api.put(`/api/project/save/${projectId}` , {code});
+          toast.success(data.message)
+      }
+      catch(error : any) {
+        toast.error(error?.response?.data?.message || error.message );
+        console.log(error);
+      }
+      finally{
+        setIsSeving(false);
+      }
+   }
 
   const DownloadCode = () => {
          
@@ -64,8 +79,17 @@ const Projects = () => {
   }
   
 
-  const TogglePublish = async () => {
-    
+  const togglePublish = async () => {
+        try{
+          const {data} = await api.put(`/api/user/publish-toggle/${projectId}`);
+          toast.success(data.message)
+          setProject((prev) => prev ? ({...prev, isPublished :!prev.isPublished}) : null);
+
+      }
+      catch(error : any) {
+        toast.error(error?.response?.data?.message || error.message );
+        console.log(error);
+      }
   }
 
   const startResize = () => {
@@ -83,30 +107,49 @@ const resize = (e: MouseEvent) => {
 };
 
 // Fetch when projectId changes
+// useEffect(() => {
+//     if (session?.user) {
+//         fetchProject();
+//     } else if (!isPending && !session?.user) {
+//         navigate("/")
+//         toast("Please login to view your projects")
+//     }
+// }, [session?.user, projectId])
+
+// // ✅ Poll every 5 seconds until code is ready
+// useEffect(() => {
+//     if (!project || project.current_code) return; // stop if code exists
+
+//     const intervalId = setInterval(async () => {
+//         const { data } = await api.get(`/api/user/project/${projectId}`)
+//         setProject(data.project)
+//         setChatButton(data.project.current_code ? false : true)
+//         if (data.project.current_code) {
+//             clearInterval(intervalId) // ✅ stop polling once code arrives
+//         }
+//     }, 5000);
+
+//     return () => clearInterval(intervalId);
+// }, [project?.current_code])
+
 useEffect(() => {
-    if (session?.user) {
-        fetchProject();
-    } else if (!isPending && !session?.user) {
-        navigate("/")
-        toast("Please login to view your projects")
-    }
-}, [session?.user, projectId])
+  if (session?.user) {
+    fetchProject();
+  } else if (!isPending && !session?.user) {
+    navigate("/")
+    toast("Please login to view your projects")
+  }
+}, [session?.user])
 
-// ✅ Poll every 5 seconds until code is ready
 useEffect(() => {
-    if (!project || project.current_code) return; // stop if code exists
+  if (project && !project.current_code) {
+    const intervalId = setInterval(fetchProject, 10000);
+    return () => clearInterval(intervalId)
+  }
+}, [project])
 
-    const intervalId = setInterval(async () => {
-        const { data } = await api.get(`/api/user/project/${projectId}`)
-        setProject(data.project)
-        setChatButton(data.project.current_code ? false : true)
-        if (data.project.current_code) {
-            clearInterval(intervalId) // ✅ stop polling once code arrives
-        }
-    }, 5000);
 
-    return () => clearInterval(intervalId);
-}, [project?.current_code])
+
   useEffect(() => {
   window.addEventListener("mousemove", resize);
   window.addEventListener("mouseup", stopResize);
@@ -197,7 +240,7 @@ useEffect(() => {
               <DownloadIcon className="w-4 h-4"/> Download
             </button>
 
-            <button onClick={TogglePublish} className="flex items-center gap-1.5 px-3 py-1.5 text-black font-bold bg-green-600 hover:bg-green-500 rounded-md text-sm font-medium">
+            <button onClick={togglePublish} className="flex items-center gap-1.5 px-3 py-1.5 text-black font-bold bg-green-600 hover:bg-green-500 rounded-md text-sm font-medium">
               {project.isPublished ? <EyeOffIcon size={16}/> :  <EyeIcon size={16}/> }
                {project.isPublished ? "Unpublish" :  "Publish"  }
             

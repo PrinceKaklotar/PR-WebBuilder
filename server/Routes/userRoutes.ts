@@ -10,6 +10,7 @@ userRouter.post('/project',protect,createUserProject)
 userRouter.get('/project/:pojectId',protect,getUserProject)
 userRouter.get('/projects',protect,getUserProjects)
 userRouter.get('/publish-toggle/:projectId',protect,togglePublish)
+userRouter.put('/publish-toggle/:projectId', protect, togglePublish);
 userRouter.get('/purchase-credits',protect,purchaseCredits)
 
 

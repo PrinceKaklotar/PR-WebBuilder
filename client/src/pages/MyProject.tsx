@@ -6,9 +6,12 @@ import { Loader2Icon, PlusIcon, Trash2Icon, TrashIcon } from "lucide-react";
 import Footer from "../components/Footer";
 
 import api from "@/configs/axios";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const MyProject = () => {
   // store project data inn array -> ([]) initially empty array
+  const {data : session, isPending} = authClient.useSession()
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const Navigate = useNavigate();
@@ -24,12 +27,28 @@ setProjects(data.projects)
     }, 1000);
   };
   const deleteProject = async (ProjectID:string) => {
-      
+      try{
+            const confirm = window.confirm('Are you sure to delete this project ?')
+            if(!confirm) return;
+            const {data} = await api.delete(`/api/project/${ProjectID}`)
+            toast.success(data.message);
+            fectchProjcts()
+            
+      }catch(error: any){
+          console.log(error);
+          toast.error(error?.response?.data?.message || error.message)
+      }
   }
-  // when this component loaded then it func run
+  // when this compo
+  // nent loaded then it func run
   useEffect(() => {
-    fectchProjcts();
-  }, []);
+    if(session?.user&& !isPending) 
+         fectchProjcts();
+    else if(!isPending && !session?.user) {
+        Navigate('/');
+        toast('Please login to view yourproject ')
+    } 
+  }, [session?.user]);
 
   return (
     <>

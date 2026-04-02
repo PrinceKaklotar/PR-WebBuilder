@@ -1,6 +1,7 @@
 import {Request,Response} from 'express'
 import prisma from '../lib/prisma';
 import openai from '../configs/openai';
+import "dotenv/config";
 
 // controller fun to make revision
 // get user credit
@@ -58,7 +59,7 @@ export const makeRevision = async (req: Request, res:Response) => {
       // enhanec user responce
 
       const promtEnhanceResponse =  await openai.chat.completions.create({
-         model: 'arcee-ai/trinity-large-preview:free',
+         model: process.env.MODEL_NAME!,
          messages : [
             {
                 role: 'system',
@@ -101,27 +102,53 @@ export const makeRevision = async (req: Request, res:Response) => {
 
       // genrate website code
       const codeGenrationResponse = await openai.chat.completions.create({
-          model: 'arcee-ai/trinity-large-preview:free',
+         model: process.env.MODEL_NAME!,
           messages: [
               {   
                 role: 'system',
-                content:`
-                You are an expert web developer.
+                content: `
+                You are a senior frontend developer.
 
-                CRITICAL REQUIREMENTS:
-                - Return ONLY the complete updated HTML code with the requested changes.
-                - Use Tailwind CSS for ALL styling (NO custom CSS).
-                - Use Tailwind utility classes for all styling changes.
-                - Include all JavaScript in <script> tags before closing </body>
-                - Make sure it's a complete, standalone HTML document with Tailwind CSS
-                - Return the HTML Code Only, nothing else
+                Your task:
+                Update the existing website and make it FULLY FUNCTIONAL and INTERACTIVE.
 
-                Apply the requested changes while maintaining the Tailwind CSS styling approach.`
+                CRITICAL RULES:
+                - Return ONLY complete HTML (no explanation)
+                - Use Tailwind CSS (CDN already included)
+                - ALL buttons MUST work using JavaScript
+                - Add event listeners for all interactions
+                - Forms must handle input properly
+                - Add real functionality (not just UI)
 
+                INTERACTIVITY REQUIREMENTS:
+                - Buttons must have onclick or JS event listeners
+                - Forms must validate input
+                - Add dynamic updates (DOM manipulation)
+                - Use localStorage if needed
+
+                UI REQUIREMENTS:
+                - Modern UI (cards, spacing, gradients)
+                - Proper layout (navbar, sections)
+                - Responsive design
+
+                IMPORTANT:
+                - Keep existing structure
+                - Improve UI + functionality
+                - Return FULL working code
+                `
               },{
 
                 role : 'user',
-                content : `here is the current website code : "${currentProject.current_code}" he user wants this change: "${enhancedPromt}"`
+                content: `
+                Current website code:
+
+                ${currentProject.current_code}
+
+                User wants:
+                ${enhancedPromt}
+
+                Apply changes and improve functionality.
+                `
               }
           ]
       })
