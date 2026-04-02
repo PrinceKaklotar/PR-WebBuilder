@@ -7,6 +7,7 @@ import { Resend } from "resend";
 import userRouter from "./Routes/userRoutes";
 import projectRouter from "./Routes/projectRoutes";
 import prisma from './lib/prisma';
+import { stripeWebhook } from "./controllers/stripeWebhook";
 const app = express();
 export const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -27,6 +28,7 @@ setInterval(async () => {
     }
 }, 4 * 60 * 1000) // every 4 minutes
 app.use(cors(corsOptions));
+app.post('/api/stripe',express.raw({type : 'application/json'}), stripeWebhook)
 
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 app.use(express.json({limit: '50mb'}));

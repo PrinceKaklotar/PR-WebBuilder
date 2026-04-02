@@ -12,6 +12,8 @@ import Navbar from './components/Navbar'
 import { Toaster } from 'sonner'
 import AuthPage from './pages/auth/AuthPage'
 import Settings from './pages/Settings'
+import Loading from './pages/loading'
+import PaymentSuccess from './pages/PaymentSuccess'
 
 
 
@@ -37,6 +39,8 @@ const App = () => {
          <Route path="/auth/*" element={<AuthPage />} />
           <Route path="/account/settings" element={<Settings/>} />
           <Route path="/auth/reset-password" element={<AuthPage />} />
+          <Route path="/loading" element={<Loading/>}/>
+          <Route path="/payment-success" element={<PaymentSuccess />} />
     
       </Routes>
     </div>

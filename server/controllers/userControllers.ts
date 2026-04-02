@@ -347,6 +347,70 @@ export const togglePublish = async (req: Request, res:Response) => {
 
 // controller fun to purchase credit
 export const purchaseCredits = async (req: Request, res:Response) => {
-  
+     
+    try {
+         interface Plan {
+            credits : number;
+            amount : number;
+         }
+
+            const plans = {
+                basic : {credits: 100, amount:399},
+                pro : {credits: 400, amount: 1299},
+                enterprise : {credits: 1000, amount:2499}
+            }
+
+            const userId = req.userId;
+            const {planId} = req.body as {planId : keyof typeof plans}
+            const origin = req.headers.origin as string;
+            const plan : Plan = plans[planId]
+
+            if(!plan){
+                return res.status(404).json({message: 'Plan not found'});
+            }
+
+            const transaction = await prisma.transaction.create({
+                data: {
+                    userId : userId!,
+                    planId :req.body.planId,
+                    amount : plan.amount,
+                    credits : plan.credits
+                }
+            })
+
+            const stripe = new Stripe(process.env.STRIPE_SECREAT_KEY as string);
+
+            const session = await stripe.checkout.sessions.create({
+            // success_url: `${origin}/loading`,
+            // cancel_url : `${origin}`,
+            success_url: `${origin}/payment-success`,
+                cancel_url : `${origin}/pricing`,
+            line_items: [
+                {
+                   price_data : {
+                     currency : 'inr',
+                     product_data : {
+                        name : `PRWebBuilder - ${plan.credits} credits`
+
+                     },
+                      unit_amount: transaction.amount * 100
+                   },
+                     quantity:1
+                },
+            ],
+            mode: 'payment',
+            metadata: {
+                transactionId: transaction.id,
+                appId: 'PR-Web-Builder'
+            },
+            expires_at:Math.floor(Date.now()/1000) + 30*60,
+               // expires in 30 minutes
+            });
+
+       res.json({payment_link: session.url})
+    } catch (error: any) {
+        console.log(error.code || error.message);
+        res.status(500).json({message : error.message});
+    }
 }
 

@@ -11,7 +11,8 @@ userRouter.get('/project/:pojectId',protect,getUserProject)
 userRouter.get('/projects',protect,getUserProjects)
 userRouter.get('/publish-toggle/:projectId',protect,togglePublish)
 userRouter.put('/publish-toggle/:projectId', protect, togglePublish);
-userRouter.get('/purchase-credits',protect,purchaseCredits)
+//userRouter.get('/purchase-credits',protect,purchaseCredits)
+userRouter.post('/purchase-credits', protect, purchaseCredits);
 
 
 export default userRouter
