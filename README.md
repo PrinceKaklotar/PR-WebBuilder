@@ -73,7 +73,7 @@ prisma/     → Database schema
 
 ## 📬 Contact
 
-LinkedIn: [https://linkedin.com/in/your-profile ](https://www.linkedin.com/in/prince-kaklotar-7aa66a2b3/)  
+LinkedIn:(https://www.linkedin.com/in/prince-kaklotar-7aa66a2b3/)  
 
 ---
 
