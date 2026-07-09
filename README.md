@@ -83,4 +83,4 @@ If you like this project, give it a ⭐ on GitHub!
 
 ---
 
-🔥 Built by Prince
+🔥 Built by Prince Kaklotar
